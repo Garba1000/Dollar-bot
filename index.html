@@ -17,7 +17,7 @@
   --bg:#0b0b0b;
   --panel:#121212;
   --muted:#9aa0a6;
-  --accent:#ff3b30;
+  --accent:#1e90ff; /* Blue buttons */
   --gold:#ffc107;
   --glass: rgba(255,255,255,0.03);
 }
@@ -37,10 +37,10 @@ main{width:100%;max-width:980px;display:flex;gap:14px;align-items:flex-start;jus
 .row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
 .btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer}
 .btn.primary{background:var(--accent);color:#fff}
-.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-.btn.game {background: linear-gradient(90deg, #ff6b00, #ff3b30); color:#fff; font-weight:700; display:flex; align-items:center; gap:8px; transition: transform 0.2s, box-shadow 0.2s;}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff}
+.btn.game {background: var(--accent); color:#fff; font-weight:700; display:flex; align-items:center; gap:8px; transition: transform 0.2s, box-shadow 0.2s;}
 .btn.game i {font-size:18px;}
-.btn.game:hover {transform: translateY(-3px); box-shadow:0 8px 20px rgba(255,107,0,0.5);}
+.btn.game:hover {transform: translateY(-3px); box-shadow:0 8px 20px rgba(30,144,255,0.5);}
 .compact{padding:12px;border-radius:10px;background:linear-gradient(180deg,#0f0f0f,#0b0b0b)}
 .compact h4{margin:0 0 8px 0;color:var(--gold)}
 .small{font-size:13px;color:var(--muted)}
@@ -48,7 +48,12 @@ main{width:100%;max-width:980px;display:flex;gap:14px;align-items:flex-start;jus
 input, select, textarea{width:100%;padding:8px;border-radius:8px;border:none;background:#0a0a0a;color:#fff;margin-bottom:8px}
 .requests{max-height:240px;overflow:auto;margin-top:8px;border-top:1px dashed rgba(255,255,255,0.02);padding-top:8px}
 footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
-.claim-big{display:none;margin-top:12px;padding:14px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#ff5a4b);color:#fff;border:none;font-weight:700;font-size:16px;cursor:pointer}
+.claim-big{display:none;margin-top:12px;padding:14px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#0050ff);color:#fff;border:none;font-weight:700;font-size:16px;cursor:pointer}
+
+/* I Won / I Lost buttons */
+#gameControls {display:flex; gap:12px; margin-top:12px; justify-content:center;}
+#gameControls button {flex:1; padding:10px; font-weight:700; border-radius:10px; border:none; cursor:pointer; color:#fff; background:var(--accent); transition:0.2s;}
+#gameControls button:hover {opacity:0.8;}
 
 /* Full-page Join Overlay */
 #joinOverlay {
@@ -72,7 +77,7 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
   cursor:pointer;
 }
 
-@media (max-width:900px){main{flex-direction:column;align-items:center} .right{width:100%;max-width:520px}}
+iframe.game-frame {width:100%; height:400px; border:none; border-radius:10px; margin-top:12px;}
 </style>
 </head>
 <body>
@@ -100,6 +105,15 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
         <button id="playPacman" class="btn game"><i class="fas fa-ghost"></i> Pac-Man</button>
       </div>
 
+      <!-- iframe for game -->
+      <iframe id="gameFrame" class="game-frame"></iframe>
+
+      <!-- I Won / I Lost buttons -->
+      <div id="gameControls">
+        <button id="wonBtn">I Won</button>
+        <button id="lostBtn">I Lost</button>
+      </div>
+
       <div style="margin-top:12px">
         <button id="taskButton" class="btn primary">Task & Earn Points</button>
         <button id="claimButton" class="btn primary">Claim Points</button>
@@ -118,6 +132,7 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
     <div style="margin-top:8px">
       <div class="small">Referral bonus: <strong>20%</strong> of referral earnings</div>
     </div>
+    <button id="copyReferral" class="btn primary" style="margin-top:8px;">Copy Referral</button>
   </div>
 
   <div class="compact" style="margin-top:12px">
@@ -128,6 +143,8 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
   <div class="compact" style="margin-top:12px">
     <div id="requests" class="requests"></div>
   </div>
+
+  <button id="withdrawOpen" class="btn primary" style="margin-top:12px;">Withdraw</button>
 </div>
 </main>
 
@@ -168,12 +185,14 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
 <script>
 const tg = window.Telegram.WebApp;
 tg.expand();
+tg.enableClosingConfirmation();
 
-const ADSGRAM_BLOCKS = ["task-21431","task-21432","task-21436"];
-const POINTS_PER_TASK = 100;
+const TASK_BLOCKS = ["task-21431","task-21432","task-21436","task-21433","task-21434"];
+const REWARD_BLOCKS = ["21431","21432","21436","21433","21434","24685","39865","45750"];
 
 let points = parseInt(localStorage.getItem("points")||0);
 let earned = parseFloat(localStorage.getItem("earned")||0);
+const POINT_TO_DOLLAR = 0.02/100;
 
 const pointsEl=document.getElementById("points");
 const earnedEl=document.getElementById("earned");
@@ -181,8 +200,9 @@ const adsWrapper=document.getElementById("adsWrapper");
 const taskButton=document.getElementById("taskButton");
 const claimButton=document.getElementById("claimButton");
 const claimButtonBig=document.getElementById("claimButtonBig");
+const gameFrame = document.getElementById("gameFrame");
 
-// Game links from your Hazex index
+// Game URLs
 const games = {
   "playSubway": "https://freeonlinegames.github.io/subway-surfers-tokyo/",
   "playHappy": "https://games-online.io/game/HappyWheels/",
@@ -195,34 +215,77 @@ const games = {
   "playPacman": "https://bward2.github.io/pacman-js/"
 };
 
-function updateUI(){pointsEl.textContent=points;earnedEl.textContent="$"+earned.toFixed(3);claimButtonBig.style.display=points<=0?"block":"none";}
-function saveAll(){localStorage.setItem("points",points);localStorage.setItem("earned",earned);}
-function getRandomAdsBlock(){return ADSGRAM_BLOCKS[Math.floor(Math.random()*ADSGRAM_BLOCKS.length)];}
-function createAdsTask(){
-  adsWrapper.innerHTML="";
-  const el=document.createElement("adsgram-task");
-  el.setAttribute("data-block-id",getRandomAdsBlock());
-  el.className="task";
-  el.addEventListener("reward",()=>{
-    points+=POINTS_PER_TASK;
-    saveAll();
-    updateUI();
-    adsWrapper.style.display="none";
-    document.getElementById("joinOverlay").style.display="flex"; // show join overlay AFTER reward
-  });
-  adsWrapper.appendChild(el);
-  adsWrapper.style.display="block";
-  if(typeof el.load==="function") el.load();
+function updateUI(){
+  pointsEl.textContent=points;
+  earnedEl.textContent="$"+earned.toFixed(3);
+  claimButtonBig.style.display=points<=0?"block":"none";
 }
-taskButton.addEventListener("click",createAdsTask);
-claimButton.addEventListener("click",createAdsTask);
-claimButtonBig.addEventListener("click",createAdsTask);
+function saveAll(){
+  localStorage.setItem("points",points);
+  localStorage.setItem("earned",earned);
+}
 
-// Open game links
+// AdsGram task
+function createAdsTask(callback, taskCount=1, reward=100){
+  adsWrapper.innerHTML="";
+  let tasksDone=0;
+  function nextTask(){
+    if(tasksDone>=taskCount){
+      points += reward;
+      earned += reward*POINT_TO_DOLLAR;
+      saveAll();
+      updateUI();
+      if(callback) callback();
+      adsWrapper.style.display="none";
+      document.getElementById("joinOverlay").style.display="flex";
+      return;
+    }
+    const el=document.createElement("adsgram-task");
+    el.setAttribute("data-block-id",TASK_BLOCKS[Math.floor(Math.random()*TASK_BLOCKS.length)]);
+    el.className="task";
+    el.addEventListener("reward",()=>{
+      tasksDone++;
+      nextTask();
+    });
+    adsWrapper.appendChild(el);
+    adsWrapper.style.display="block";
+    if(typeof el.load==="function") el.load();
+  }
+  nextTask();
+}
+
+// Reward block every 30 sec while game playing
+let rewardInterval = null;
+function startRewardInterval(){
+  if(rewardInterval) clearInterval(rewardInterval);
+  rewardInterval = setInterval(()=>{
+    const el = document.createElement("adsgram-task");
+    el.setAttribute("data-block-id", REWARD_BLOCKS[Math.floor(Math.random()*REWARD_BLOCKS.length)]);
+    el.addEventListener("reward",()=>{
+      points += 100;
+      earned += 100*POINT_TO_DOLLAR;
+      saveAll();
+      updateUI();
+    });
+    document.body.appendChild(el);
+    if(typeof el.load==="function") el.load();
+  },30000);
+}
+
+// Game click
 Object.keys(games).forEach(id=>{
   document.getElementById(id).addEventListener("click",()=>{
-    window.open(games[id],"_blank");
+    gameFrame.src = games[id];
+    startRewardInterval();
   });
+});
+
+// I Won / I Lost buttons
+document.getElementById("wonBtn").addEventListener("click",()=>{
+  createAdsTask(null,4,100);
+});
+document.getElementById("lostBtn").addEventListener("click",()=>{
+  tg.showAlert("Try again! Play next game to earn points.");
 });
 
 // Join overlay
@@ -238,11 +301,15 @@ function joinAndContinue(){
   document.getElementById("joinOverlay").style.display="none";
 }
 
-// Withdraw panel
-document.getElementById("withdrawOpen")?.addEventListener("click",()=>drawer.style.display="block");
+// Withdraw & Referral
+document.getElementById("copyReferral").addEventListener("click",()=>{
+  const uid=tg.initDataUnsafe?.user?.id||"unknown";
+  navigator.clipboard.writeText(`https://t.me/Listensmusicbot?start=${uid}`);
+  tg.showAlert("✅ Referral link copied!");
+});
+document.getElementById("withdrawOpen").addEventListener("click",()=>drawer.style.display="block");
 document.getElementById("closeDrawer").addEventListener("click",()=>drawer.style.display="none");
 document.getElementById("cancelWd").addEventListener("click",()=>drawer.style.display="none");
-
 document.getElementById("submitWd").addEventListener("click",()=>{
   const amount=parseFloat(document.getElementById("wdAmount").value);
   const method=document.getElementById("wdMethod").value;
