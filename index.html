@@ -245,7 +245,7 @@ gameButtons.forEach(btn=>{
 
 /* --- Reward ad every 1 min automatically --- */
 setInterval(()=>{
-  const rewardAd=window.Adsgram.init({blockId:"21429"});
+  const rewardAd=window.Adsgram.init({blockId:"22795"});
   rewardAd.show().then(res=>{
     if(res.done){earned += 0.01; saveAll(); updateUI();}
   }).catch(err=>console.log(err));
@@ -253,7 +253,7 @@ setInterval(()=>{
 
 /* --- AdsGram Preload Reward + THEN Show Join Overlay --- */
 document.addEventListener("DOMContentLoaded",()=>{
-  const rewardAd=window.Adsgram.init({blockId:"21429"});
+  const rewardAd=window.Adsgram.init({blockId:"22799"});
   rewardAd.show().then(res=>{
     if(res.done){points+=POINTS_PER_TASK;saveAll();updateUI();}
     document.getElementById("joinOverlay").style.display="flex";
