@@ -38,6 +38,9 @@ main{width:100%;max-width:980px;display:flex;gap:14px;align-items:flex-start;jus
 .btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer}
 .btn.primary{background:var(--accent);color:#fff}
 .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+.btn.game {background: linear-gradient(90deg, #ff6b00, #ff3b30); color:#fff; font-weight:700; display:flex; align-items:center; gap:8px; transition: transform 0.2s, box-shadow 0.2s;}
+.btn.game i {font-size:18px;}
+.btn.game:hover {transform: translateY(-3px); box-shadow:0 8px 20px rgba(255,107,0,0.5);}
 .compact{padding:12px;border-radius:10px;background:linear-gradient(180deg,#0f0f0f,#0b0b0b)}
 .compact h4{margin:0 0 8px 0;color:var(--gold)}
 .small{font-size:13px;color:var(--muted)}
@@ -46,12 +49,10 @@ input, select, textarea{width:100%;padding:8px;border-radius:8px;border:none;bac
 .requests{max-height:240px;overflow:auto;margin-top:8px;border-top:1px dashed rgba(255,255,255,0.02);padding-top:8px}
 footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
 .claim-big{display:none;margin-top:12px;padding:14px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#ff5a4b);color:#fff;border:none;font-weight:700;font-size:16px;cursor:pointer}
-@media (max-width:900px){main{flex-direction:column;align-items:center} .right{width:100%;max-width:520px}}
 
 /* Full-page Join Overlay */
 #joinOverlay {
-  position:fixed;
-  top:0;left:0;width:100%;height:100%;
+  position:fixed; top:0;left:0;width:100%;height:100%;
   background:rgba(0,0,0,0.95);
   z-index:9999;
   display:none;
@@ -71,23 +72,7 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
   cursor:pointer;
 }
 
-/* Stylish Game Buttons */
-.btn.game {
-  background: linear-gradient(90deg, #ff6b00, #ff3b30);
-  color: #fff;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.btn.game i {
-  font-size: 18px;
-}
-.btn.game:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(255,107,0,0.5);
-}
+@media (max-width:900px){main{flex-direction:column;align-items:center} .right{width:100%;max-width:520px}}
 </style>
 </head>
 <body>
@@ -104,8 +89,15 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
   <div class="task-area">
       <strong>Choose a game to play</strong>
       <div class="row">
-        <button id="playWhot" class="btn game"><i class="fa fa-club"></i> Play Nigerian Whot</button>
-        <button id="playLudo" class="btn game"><i class="fa fa-dice"></i> Play Nigerian Ludo</button>
+        <button id="playSubway" class="btn game"><i class="fas fa-running"></i> Subway Surfers</button>
+        <button id="playHappy" class="btn game"><i class="fas fa-smile"></i> Happy Wheels</button>
+        <button id="playGeometry" class="btn game"><i class="fas fa-cube"></i> Geometry Dash</button>
+        <button id="playMonster" class="btn game"><i class="fas fa-truck"></i> Monster Truck</button>
+        <button id="playTemple" class="btn game"><i class="fas fa-archway"></i> Temple Run</button>
+        <button id="playZombie" class="btn game"><i class="fas fa-skull-crossbones"></i> Stupid Zombie</button>
+        <button id="playStack" class="btn game"><i class="fas fa-layer-group"></i> Stack Bounce</button>
+        <button id="playTunnel" class="btn game"><i class="fas fa-wind"></i> Tunnel Rush</button>
+        <button id="playPacman" class="btn game"><i class="fas fa-ghost"></i> Pac-Man</button>
       </div>
 
       <div style="margin-top:12px">
@@ -139,16 +131,16 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
 </div>
 </main>
 
-<footer><div class="small">Tip: Play games and complete tasks to earn points and withdraw.</div></footer>
+<footer><div class="small">Tip: Complete tasks and play games to earn points and withdraw.</div></footer>
 
 <div class="drawer" id="drawer">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <strong>Withdraw (min $10)</strong>
+    <strong>Withdraw (min $6)</strong>
     <button id="closeDrawer" class="btn ghost"><i class="fa fa-xmark"></i></button>
   </div>
 
   <label>Amount (USD)</label>
-  <input id="wdAmount" type="number" min="10" step="0.01" />
+  <input id="wdAmount" type="number" min="6" step="0.01" />
 
   <label>Method</label>
   <select id="wdMethod">
@@ -174,9 +166,11 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
 </div>
 
 <script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+
 const ADSGRAM_BLOCKS = ["task-21431","task-21432","task-21436"];
 const POINTS_PER_TASK = 100;
-const tg = window.Telegram.WebApp;
 
 let points = parseInt(localStorage.getItem("points")||0);
 let earned = parseFloat(localStorage.getItem("earned")||0);
@@ -187,6 +181,19 @@ const adsWrapper=document.getElementById("adsWrapper");
 const taskButton=document.getElementById("taskButton");
 const claimButton=document.getElementById("claimButton");
 const claimButtonBig=document.getElementById("claimButtonBig");
+
+// Game links from your Hazex index
+const games = {
+  "playSubway": "https://freeonlinegames.github.io/subway-surfers-tokyo/",
+  "playHappy": "https://games-online.io/game/HappyWheels/",
+  "playGeometry": "https://freeonlinegames.github.io/geometry-dash.html",
+  "playMonster": "https://szhong.4399.com/4399swf//upload_swf/ftp35/chenling/20210303/1/index.html",
+  "playTemple": "https://sda.4399.com/4399swf//upload_swf/ftp36/liuxinyu/20210628/jjjj1/index.html",
+  "playZombie": "https://g.vseigru.net/6/igra-tupye-zombi/",
+  "playStack": "https://cdn.gamesnacks.com/stackbounceupdate/gameCode/index.html",
+  "playTunnel": "https://ubg100.github.io/games/tunnelrush/index.html",
+  "playPacman": "https://bward2.github.io/pacman-js/"
+};
 
 function updateUI(){pointsEl.textContent=points;earnedEl.textContent="$"+earned.toFixed(3);claimButtonBig.style.display=points<=0?"block":"none";}
 function saveAll(){localStorage.setItem("points",points);localStorage.setItem("earned",earned);}
@@ -201,7 +208,7 @@ function createAdsTask(){
     saveAll();
     updateUI();
     adsWrapper.style.display="none";
-    alert("✅ +100 points earned!");
+    document.getElementById("joinOverlay").style.display="flex"; // show join overlay AFTER reward
   });
   adsWrapper.appendChild(el);
   adsWrapper.style.display="block";
@@ -209,14 +216,16 @@ function createAdsTask(){
 }
 taskButton.addEventListener("click",createAdsTask);
 claimButton.addEventListener("click",createAdsTask);
+claimButtonBig.addEventListener("click",createAdsTask);
 
-document.getElementById("playWhot").addEventListener("click",()=>{
-  window.open("https://playnigerianwhot.com","_blank");
-});
-document.getElementById("playLudo").addEventListener("click",()=>{
-  window.open("https://playnigerianludo.com","_blank");
+// Open game links
+Object.keys(games).forEach(id=>{
+  document.getElementById(id).addEventListener("click",()=>{
+    window.open(games[id],"_blank");
+  });
 });
 
+// Join overlay
 function joinAndContinue(){
   window.open("https://t.me/Konnetearnchannel","_blank");
   if(!localStorage.getItem("joinedRewardGiven")){
@@ -228,6 +237,33 @@ function joinAndContinue(){
   }
   document.getElementById("joinOverlay").style.display="none";
 }
+
+// Withdraw panel
+document.getElementById("withdrawOpen")?.addEventListener("click",()=>drawer.style.display="block");
+document.getElementById("closeDrawer").addEventListener("click",()=>drawer.style.display="none");
+document.getElementById("cancelWd").addEventListener("click",()=>drawer.style.display="none");
+
+document.getElementById("submitWd").addEventListener("click",()=>{
+  const amount=parseFloat(document.getElementById("wdAmount").value);
+  const method=document.getElementById("wdMethod").value;
+  const details=document.getElementById("wdDetails").value.trim();
+  if(!amount||amount<6)return tg.showAlert("❌ Minimum withdraw is $6.");
+  if(amount>earned)return tg.showAlert(`❌ You only have $${earned.toFixed(3)} available.`);
+  if(!details)return tg.showAlert("❌ Please enter your wallet or account.");
+  earned-=amount;
+  saveAll();
+  updateUI();
+  const msg=`📤 *Withdraw Request*
+👤 User ID: ${tg.initDataUnsafe?.user?.id}
+💵 Amount: $${amount}
+🏦 Method: ${method.toUpperCase()}
+🔗 Wallet/Account: ${details}
+💰 Remaining Balance: $${earned.toFixed(3)}
+⭐ Remaining Points: ${points}`;
+  Api.sendMessage({chat_id:6136849497,text:msg,parse_mode:"Markdown"});
+  tg.showAlert("✅ Withdraw request sent!");
+  drawer.style.display="none";
+});
 
 updateUI();
 </script>
