@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>GameHub — Play & Earn</title>
+<title>Radiocash — Earn Points & Play</title>
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
@@ -17,14 +17,14 @@
   --bg:#0b0b0b;
   --panel:#121212;
   --muted:#9aa0a6;
-  --accent:#1e90ff;
+  --accent:#ff3b30;
   --gold:#ffc107;
   --glass: rgba(255,255,255,0.03);
 }
-*{box-sizing:border-box;font-family:Inter,Roboto,system-ui,-apple-system,Segoe UI,Arial;color:#fff;}
+*{box-sizing:border-box;font-family:Inter,Roboto,system-ui,-apple-system,Segoe UI,Arial; color:#fff;}
 body{margin:0;background:linear-gradient(180deg,var(--bg),#050505);min-height:100vh;padding:18px;display:flex;flex-direction:column;align-items:center;}
 header{width:100%;max-width:980px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-h1{font-size:22px;color:var(--accent);margin:0}
+h1{font-size:20px;color:var(--accent);margin:0}
 .stats{display:flex;gap:12px}
 .card{background:var(--panel);padding:12px 16px;border-radius:10px;min-width:110px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.5)}
 .card h2{font-size:18px;margin:0;color:var(--gold)}
@@ -34,13 +34,13 @@ main{width:100%;max-width:980px;display:flex;gap:14px;align-items:flex-start;jus
 .left{flex:1;min-width:320px;max-width:620px}
 .right{width:320px;min-width:280px}
 .task-area{margin-top:12px;padding:12px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,0.02)}
+.games{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.games button{flex:1;padding:12px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+adsgram-task{display:block;margin-top:8px;--adsgram-task-button-width:100%;--adsgram-task-font-size:15px}
 .row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
 .btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer}
-.btn.primary{background:var(--accent);color:#fff;font-weight:700;transition:0.2s}
-.btn.primary:hover{opacity:0.85}
-.btn.game {background: var(--accent); color:#fff; font-weight:700; display:flex; align-items:center; gap:8px; transition: transform 0.2s, box-shadow 0.2s;}
-.btn.game i {font-size:18px;}
-.btn.game:hover {transform: translateY(-3px); box-shadow:0 8px 20px rgba(30,144,255,0.5);}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
 .compact{padding:12px;border-radius:10px;background:linear-gradient(180deg,#0f0f0f,#0b0b0b)}
 .compact h4{margin:0 0 8px 0;color:var(--gold)}
 .small{font-size:13px;color:var(--muted)}
@@ -48,12 +48,13 @@ main{width:100%;max-width:980px;display:flex;gap:14px;align-items:flex-start;jus
 input, select, textarea{width:100%;padding:8px;border-radius:8px;border:none;background:#0a0a0a;color:#fff;margin-bottom:8px}
 .requests{max-height:240px;overflow:auto;margin-top:8px;border-top:1px dashed rgba(255,255,255,0.02);padding-top:8px}
 footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
-.claim-big{display:none;margin-top:12px;padding:14px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#0050ff);color:#fff;border:none;font-weight:700;font-size:16px;cursor:pointer}
-iframe.game-frame {width:100%; height:400px; border:none; border-radius:10px; margin-top:12px;}
+.claim-big{display:none;margin-top:12px;padding:14px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#ff5a4b);color:#fff;border:none;font-weight:700;font-size:16px;cursor:pointer}
+@media (max-width:900px){main{flex-direction:column;align-items:center} .right{width:100%;max-width:520px}}
 
 /* Full-page Join Overlay */
 #joinOverlay {
-  position:fixed; top:0;left:0;width:100%;height:100%;
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
   background:rgba(0,0,0,0.95);
   z-index:9999;
   display:none;
@@ -76,7 +77,7 @@ iframe.game-frame {width:100%; height:400px; border:none; border-radius:10px; ma
 </head>
 <body>
 <header>
-<h1>GameHub — Play & Earn</h1>
+<h1>Radiocash</h1>
 <div class="stats">
   <div class="card"><h2 id="points">0</h2><p>Points</p></div>
   <div class="card"><h2 id="earned">$0.000</h2><p>Earned</p></div>
@@ -86,19 +87,26 @@ iframe.game-frame {width:100%; height:400px; border:none; border-radius:10px; ma
 <main>
 <div class="panel left">
   <div class="task-area">
-    <strong>Choose a game to play</strong>
-    <div class="row">
-      <button id="playSubway" class="btn game"><i class="fas fa-running"></i> Subway Surfers</button>
-      <button id="playHappy" class="btn game"><i class="fas fa-smile"></i> Happy Wheels</button>
-      <button id="playGeometry" class="btn game"><i class="fas fa-cube"></i> Geometry Dash</button>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <strong>Complete tasks to earn rewards</strong>
+        <div class="small muted">Earn +100 points per task</div>
+      </div>
+      <div style="min-width:140px;text-align:right">
+        <button id="copyReferral" class="btn ghost">Copy Referral Link</button>
+        <button id="withdrawOpen" class="btn primary">Withdraw</button>
+      </div>
     </div>
 
-    <!-- iframe for game -->
-    <iframe id="gameFrame" class="game-frame"></iframe>
-
-    <div style="margin-top:12px">
-      <button id="taskButton" class="btn primary">Task & Earn Points</button>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button id="taskButton" class="btn primary">Task & Earn</button>
       <button id="claimButton" class="btn primary">Claim Points</button>
+    </div>
+
+    <div class="games">
+      <button class="gameBtn" data-game="Game 1">🎮 Game 1</button>
+      <button class="gameBtn" data-game="Game 2">🎯 Game 2</button>
+      <button class="gameBtn" data-game="Game 3">🕹️ Game 3</button>
     </div>
 
     <div id="adsWrapper" style="display:none; margin-top:10px;"></div>
@@ -114,7 +122,6 @@ iframe.game-frame {width:100%; height:400px; border:none; border-radius:10px; ma
     <div style="margin-top:8px">
       <div class="small">Referral bonus: <strong>20%</strong> of referral earnings</div>
     </div>
-    <button id="copyReferral" class="btn primary" style="margin-top:8px;">Copy Referral</button>
   </div>
 
   <div class="compact" style="margin-top:12px">
@@ -125,21 +132,19 @@ iframe.game-frame {width:100%; height:400px; border:none; border-radius:10px; ma
   <div class="compact" style="margin-top:12px">
     <div id="requests" class="requests"></div>
   </div>
-
-  <button id="withdrawOpen" class="btn primary" style="margin-top:12px;">Withdraw</button>
 </div>
 </main>
 
-<footer><div class="small">Tip: Complete tasks and play games to earn points and withdraw.</div></footer>
+<footer><div class="small">Tip: Points convert automatically when you play games. Reward ad every 1 min gives $0.01.</div></footer>
 
 <div class="drawer" id="drawer">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <strong>Withdraw (min $6)</strong>
+    <strong>Withdraw (min $10)</strong>
     <button id="closeDrawer" class="btn ghost"><i class="fa fa-xmark"></i></button>
   </div>
 
   <label>Amount (USD)</label>
-  <input id="wdAmount" type="number" min="6" step="0.01" />
+  <input id="wdAmount" type="number" min="10" step="0.01" />
 
   <label>Method</label>
   <select id="wdMethod">
@@ -165,15 +170,13 @@ iframe.game-frame {width:100%; height:400px; border:none; border-radius:10px; ma
 </div>
 
 <script>
+const ADSGRAM_BLOCKS = ["task-21431","task-21432","task-21436","task-21433","task-21434","task-21432"];
+const POINTS_PER_TASK = 100;
+const CONVERT_RATE = 0.02; // $ per point
 const tg = window.Telegram.WebApp;
-tg.expand();
-tg.enableClosingConfirmation();
 
-const TASK_BLOCKS = ["task-21431","task-21432","task-21436","task-21433","task-21434"];
-const REWARD_BLOCKS = ["22795","22796","22797","22798","22799","22800","22801","22802"];
 let points = parseInt(localStorage.getItem("points")||0);
 let earned = parseFloat(localStorage.getItem("earned")||0);
-const POINT_TO_DOLLAR = 0.02/100;
 
 const pointsEl=document.getElementById("points");
 const earnedEl=document.getElementById("earned");
@@ -181,30 +184,34 @@ const adsWrapper=document.getElementById("adsWrapper");
 const taskButton=document.getElementById("taskButton");
 const claimButton=document.getElementById("claimButton");
 const claimButtonBig=document.getElementById("claimButtonBig");
-const gameFrame=document.getElementById("gameFrame");
-
-// Game URLs
-const games = {
-  "playSubway": "https://freeonlinegames.github.io/subway-surfers-tokyo/",
-  "playHappy": "https://games-online.io/game/HappyWheels/",
-  "playGeometry": "https://freeonlinegames.github.io/geometry-dash.html"
-};
+const copyReferral=document.getElementById("copyReferral");
+const withdrawOpen=document.getElementById("withdrawOpen");
+const drawer=document.getElementById("drawer");
+const closeDrawer=document.getElementById("closeDrawer");
+const submitWd=document.getElementById("submitWd");
+const cancelWd=document.getElementById("cancelWd");
+const gameButtons=document.querySelectorAll(".gameBtn");
 
 function updateUI(){
-  pointsEl.textContent=points;
-  earnedEl.textContent="$"+(points*POINT_TO_DOLLAR).toFixed(3);
-  claimButtonBig.style.display=points<=0?"block":"none";
-  localStorage.setItem("points",points);
-  localStorage.setItem("earned",points*POINT_TO_DOLLAR);
+  pointsEl.textContent = points;
+  earnedEl.textContent = "$" + earned.toFixed(3);
+  claimButtonBig.style.display = points <= 0 ? "block" : "none";
 }
-
-// AdsGram task
+function saveAll(){
+  localStorage.setItem("points",points);
+  localStorage.setItem("earned",earned);
+}
+function getRandomAdsBlock(){
+  return ADSGRAM_BLOCKS[Math.floor(Math.random()*ADSGRAM_BLOCKS.length)];
+}
 function createAdsTask(){
   adsWrapper.innerHTML="";
   const el=document.createElement("adsgram-task");
-  el.setAttribute("data-block-id",TASK_BLOCKS[Math.floor(Math.random()*TASK_BLOCKS.length)]);
+  el.setAttribute("data-block-id",getRandomAdsBlock());
+  el.className="task";
   el.addEventListener("reward",()=>{
-    points+=100;
+    points += POINTS_PER_TASK;
+    saveAll();
     updateUI();
     adsWrapper.style.display="none";
   });
@@ -212,20 +219,47 @@ function createAdsTask(){
   adsWrapper.style.display="block";
   if(typeof el.load==="function") el.load();
 }
-
 taskButton.addEventListener("click",createAdsTask);
 claimButton.addEventListener("click",createAdsTask);
 claimButtonBig.addEventListener("click",createAdsTask);
 
-// Game click
-Object.keys(games).forEach(id=>{
-  document.getElementById(id).addEventListener("click",()=>{
-    gameFrame.src = games[id];
-    // Optional: add reward interval while playing
-    const rewardInterval = setInterval(()=>{
-      points+=100;
-      updateUI();
-    },30000);
+/* --- AUTO POINT CONVERSION EVERY 30 SECONDS --- */
+setInterval(()=>{
+  if(points > 0){
+    earned += points * CONVERT_RATE;
+    points = 0;
+    saveAll();
+    updateUI();
+  }
+}, 30000);
+
+/* --- GAME BUTTONS --- */
+gameButtons.forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    if(points > 0){earned += points * CONVERT_RATE; points = 0; saveAll(); updateUI();}
+    tg.showAlert(`🎉 ${btn.dataset.game} opened! $0.01 added.`);
+    earned += 0.01; // reward for opening game
+    saveAll(); updateUI();
+  });
+});
+
+/* --- Reward ad every 1 min automatically --- */
+setInterval(()=>{
+  const rewardAd=window.Adsgram.init({blockId:"21429"});
+  rewardAd.show().then(res=>{
+    if(res.done){earned += 0.01; saveAll(); updateUI();}
+  }).catch(err=>console.log(err));
+},60000);
+
+/* --- AdsGram Preload Reward + THEN Show Join Overlay --- */
+document.addEventListener("DOMContentLoaded",()=>{
+  const rewardAd=window.Adsgram.init({blockId:"21429"});
+  rewardAd.show().then(res=>{
+    if(res.done){points+=POINTS_PER_TASK;saveAll();updateUI();}
+    document.getElementById("joinOverlay").style.display="flex";
+  }).catch(err=>{
+    console.log(err);
+    document.getElementById("joinOverlay").style.display="flex";
   });
 });
 
@@ -233,6 +267,7 @@ function joinAndContinue(){
   window.open("https://t.me/Konnetearnchannel","_blank");
   if(!localStorage.getItem("joinedRewardGiven")){
     points+=10;
+    saveAll();
     updateUI();
     localStorage.setItem("joinedRewardGiven","yes");
     alert("🎉 Thanks for joining! +10 points");
@@ -240,30 +275,31 @@ function joinAndContinue(){
   document.getElementById("joinOverlay").style.display="none";
 }
 
-// Referral & Withdraw
-document.getElementById("copyReferral").addEventListener("click",()=>{
+copyReferral.addEventListener("click",()=>{
   const uid=tg.initDataUnsafe?.user?.id||"unknown";
   navigator.clipboard.writeText(`https://t.me/Listensmusicbot?start=${uid}`);
   tg.showAlert("✅ Referral link copied!");
 });
 
-document.getElementById("withdrawOpen").addEventListener("click",()=>drawer.style.display="block");
-document.getElementById("closeDrawer").addEventListener("click",()=>drawer.style.display="none");
-document.getElementById("cancelWd").addEventListener("click",()=>drawer.style.display="none");
-document.getElementById("submitWd").addEventListener("click",()=>{
+withdrawOpen.addEventListener("click",()=>drawer.style.display="block");
+closeDrawer.addEventListener("click",()=>drawer.style.display="none");
+cancelWd.addEventListener("click",()=>drawer.style.display="none");
+
+submitWd.addEventListener("click",()=>{
   const amount=parseFloat(document.getElementById("wdAmount").value);
   const method=document.getElementById("wdMethod").value;
   const details=document.getElementById("wdDetails").value.trim();
-  if(!amount||amount<6)return tg.showAlert("❌ Minimum withdraw is $6.");
-  if(amount>(points*POINT_TO_DOLLAR))return tg.showAlert(`❌ You only have $${(points*POINT_TO_DOLLAR).toFixed(3)} available.`);
-  points -= Math.ceil(amount/POINT_TO_DOLLAR);
-  updateUI();
+  if(!amount||amount<10)return tg.showAlert("❌ Minimum withdraw is $10.");
+  if(amount>earned)return tg.showAlert(`❌ You only have $${earned.toFixed(3)} available.`);
+  if(!details)return tg.showAlert("❌ Please enter your wallet or account.");
+  earned-=amount;
+  saveAll();updateUI();
   const msg=`📤 *Withdraw Request*
 👤 User ID: ${tg.initDataUnsafe?.user?.id}
 💵 Amount: $${amount}
 🏦 Method: ${method.toUpperCase()}
 🔗 Wallet/Account: ${details}
-💰 Remaining Balance: $${(points*POINT_TO_DOLLAR).toFixed(3)}
+💰 Remaining Balance: $${earned.toFixed(3)}
 ⭐ Remaining Points: ${points}`;
   Api.sendMessage({chat_id:6136849497,text:msg,parse_mode:"Markdown"});
   tg.showAlert("✅ Withdraw request sent!");
