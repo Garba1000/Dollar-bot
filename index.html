@@ -243,7 +243,7 @@ gameButtons.forEach(btn=>{
 
 /* Reward ad every 4 minutes */
 setInterval(()=>{
-  const rewardAd=window.Adsgram.init({blockId:"22799"});
+  const rewardAd=window.Adsgram.init({blockId:"23257"});
   rewardAd.show().then(res=>{
     if(res.done){
       earned+=0.00001; saveAll(); updateUI();
@@ -253,7 +253,7 @@ setInterval(()=>{
 
 /* Preload reward + show join screen */
 document.addEventListener("DOMContentLoaded",()=>{
-  const rewardAd=window.Adsgram.init({blockId:"22795"});
+  const rewardAd=window.Adsgram.init({blockId:"23258"});
   rewardAd.show().then(res=>{
     if(res.done){
       points+=POINTS_PER_TASK;
