@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Gamehub — Earn Points & Play</title>
+<title>Konnethubbot — Earn Points & Play</title>
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
@@ -65,7 +65,7 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
 </head>
 <body>
 <header>
-<h1>Radiocash</h1>
+<h1>Konnethubbot</h1>
 <div class="stats">
   <div class="card"><h2 id="points">0</h2><p>Points</p></div>
   <div class="card"><h2 id="earned">$0.00000</h2><p>Earned</p></div>
@@ -241,7 +241,7 @@ gameButtons.forEach(btn=>{
   });
 });
 
-/* Reward ad every 3 minutes */
+/* Reward ad every 4 minutes */
 setInterval(()=>{
   const rewardAd=window.Adsgram.init({blockId:"22799"});
   rewardAd.show().then(res=>{
@@ -249,7 +249,7 @@ setInterval(()=>{
       earned+=0.00001; saveAll(); updateUI();
     }
   }).catch(err=>console.log(err));
-},180000);
+},190000);
 
 /* Preload reward + show join screen */
 document.addEventListener("DOMContentLoaded",()=>{
